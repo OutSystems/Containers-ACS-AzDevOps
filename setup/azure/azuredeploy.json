@@ -95,6 +95,12 @@
             "metadata": {
                 "description": "The Azure SQL administrator login password."
             }
+        },
+        "containerRegistryName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the container registry. CAUTION: This name must be unique within the Azure region"
+            }
         }
     },
     "variables": {
@@ -197,6 +203,22 @@
                     },
                     "urlPathMapsName": {
                         "value": "[parameters('applicationGatewayPathMapName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('OutSystems.ACR.', parameters('containerRegistryName'))]",
+            "apiVersion": "2015-01-01",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(deployment().properties.templateLink.uri, 'resources/containerRegistry.json')]"
+                },
+                "parameters": {
+                    "containerRegistryName": {
+                        "value": "[parameters('containerRegistryName')]"
                     }
                 }
             }
