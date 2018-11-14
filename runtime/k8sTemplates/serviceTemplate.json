@@ -1,0 +1,22 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "#{os.applicationName}#",
+    "labels": {
+      "app" : "#{os.applicationName}#"
+    }
+  },
+  "spec": {
+    "type": "ClusterIP",
+    "ports": [
+      {
+        "protocol": "TCP",
+        "port": 80
+      }
+    ],
+    "selector": {
+      "app": "#{os.applicationName}#"
+    }
+  }
+}

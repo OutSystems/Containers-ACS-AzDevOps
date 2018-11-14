@@ -1,0 +1,74 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "Deployment",
+    "metadata": {
+        "name": "#{os.applicationName}#"
+    },
+    "spec": {
+        "replicas": 1,
+        "strategy": {
+            "type": "RollingUpdate",
+            "rollingUpdate": {
+                "maxSurge": 1,
+                "maxUnavailable": 1
+            }
+        },
+        "selector": {
+            "matchLabels": {
+                "app": "#{os.applicationName}#"
+            }
+        },
+        "minReadySeconds": 5,
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "#{os.applicationName}#",
+                    "operationid": "#{os.operationId}#"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "#{os.applicationName}#",
+                        "image": "#{acr.registryName}#/#{os.applicationName}#",
+                        "imagePullPolicy": "Always",
+                        "ports": [
+                            {
+                                "containerPort": 80
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "name": "appconfig",
+                                "mountPath": "configs"
+                            },
+                            {
+                                "name": "privatekey",
+                                "mountPath": "secrets"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "appconfig",
+                        "configMap": {
+                            "name": "#{os.applicationName}#"
+                        }
+                    },
+                    {
+                        "name": "privatekey",
+                        "secret": {
+                            "secretName": "privatekey"
+                        }
+                    }
+                ],
+                "imagePullSecrets": [
+                    {
+                        "name": "#{k8s.imagePullSecrets}#"
+                    }
+                ]
+            }
+        }
+    }
+}
