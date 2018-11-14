@@ -1,0 +1,239 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "type": "string"
+        },
+        "azureDevopsOrganization": {
+            "type": "string"
+        },
+        "azureDevopsProject": {
+            "type": "string"
+        },
+        "azureDevopsPAT": {
+            "type": "securestring"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "[parameters('logicAppName')]",
+            "apiVersion": "2017-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$azureDevopsOrganization": {
+                            "type": "String"
+                        },
+                        "$azureDevopsProject": {
+                            "type": "String"
+                        },
+                        "$azureDevopsPAT": {
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Response": {
+                            "runAfter": {
+                                "Trigger_build_task_in_Azure_Devops": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "statusCode": 200
+                            }
+                        },
+                        "Trigger_build_task_in_Azure_Devops": {
+                            "runAfter": {
+                                "setConfigPath": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "password": "@parameters('$azureDevopsPAT')",
+                                    "type": "Basic",
+                                    "username": "PAT"
+                                },
+                                "Body": "{\n\t\"definition\": {\n         \"id\": @{variables('buildId')}\n    },\n\t\"parameters\":  \"{\\\"os.applicationName\\\": \\\"@{variables('ApplicationName')}\\\", \\\"os.applicationKey\\\": \\\"@{variables('ApplicationKey')}\\\", \\\"os.operationId\\\": \\\"@{variables('OperationId')}\\\", \\\"os.address\\\": \\\"@{variables('Address')}\\\", \\\"os.targetPath\\\": \\\"@{variables('TargetPath')}\\\", \\\"os.resultPath\\\": \\\"@{variables('ResultPath')}\\\", \\\"os.configPath\\\": \\\"@{variables('ConfigPath')}\\\"}\"\n}",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://dev.azure.com/@parameters('$azureDevopsOrganization')/@parameters('$azureDevopsProject')/_apis/build/builds?api-version=4.1"
+                            }
+                        },
+                        "setAddress": {
+                            "runAfter": {
+                                "setOperationId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Address",
+                                        "type": "String",
+                                        "value": "@{base64ToString(triggerOutputs()['queries']['Address'])}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setApplicationKey": {
+                            "runAfter": {
+                                "setApplicationName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ApplicationKey",
+                                        "type": "String",
+                                        "value": "@{base64toString(triggerOutputs()['queries']['ApplicationKey'])}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setApplicationName": {
+                            "runAfter": {
+                                "setBuildId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ApplicationName",
+                                        "type": "String",
+                                        "value": "@{tolower(base64toString(triggerOutputs()['queries']['ApplicationName']))}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setBuildId": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "buildId",
+                                        "type": "String",
+                                        "value": "@{triggerOutputs()['queries']['BuildId']}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setConfigPath": {
+                            "runAfter": {
+                                "setResultPath": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ConfigPath",
+                                        "type": "String",
+                                        "value": "@{replace(base64toString(triggerOutputs()['queries']['ConfigPath']),'\\','/')}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setOperationId": {
+                            "runAfter": {
+                                "setApplicationKey": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "OperationId",
+                                        "type": "String",
+                                        "value": "@{base64toString(triggerOutputs()['queries']['OperationId'])}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setResultPath": {
+                            "runAfter": {
+                                "setTargetPath": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResultPath",
+                                        "type": "String",
+                                        "value": "@{replace(base64toString(triggerOutputs()['queries']['ResultPath']),'\\','/')}"
+                                    }
+                                ]
+                            }
+                        },
+                        "setTargetPath": {
+                            "runAfter": {
+                                "setAddress": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TargetPath",
+                                        "type": "String",
+                                        "value": "@{replace(base64toString(triggerOutputs()['queries']['TargetPath']),'\\','/')}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$azureDevopsOrganization": {
+                        "value": "[parameters('azureDevopsOrganization')]"
+                    },
+                    "$azureDevopsProject": {
+                        "value": "[parameters('azureDevopsProject')]"
+                    },
+                    "$azureDevopsPAT": {
+                        "value": "[parameters('azureDevopsPAT')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "logicAppName": {
+            "type": "string",
+            "value": "[parameters('logicAppName')]"
+        }
+    }
+}

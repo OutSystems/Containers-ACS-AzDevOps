@@ -99,7 +99,31 @@
         "containerRegistryName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the container registry. CAUTION: This name must be unique within the Azure region"
+                "description": "The name of the container registry. CAUTION: This name must be unique within the Azure region."
+            }
+        },
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the logic app that will be created for OutSystems triggers."
+            }
+        },
+        "azureDevopsOrganization": {
+            "type": "string",
+            "metadata": {
+                "description": "Your Azure Devops organization name."
+            }
+        },
+        "azureDevopsProject": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure Devops project where the pipelines are located."
+            }
+        },
+        "azureDevopsPAT": {
+            "type": "string",
+            "metadata": {
+                "description": "The Personal Authentication Token to access the Azure Devops REST API."
             }
         }
     },
@@ -219,6 +243,31 @@
                 "parameters": {
                     "containerRegistryName": {
                         "value": "[parameters('containerRegistryName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('OutSystems.LA.', parameters('logicAppName'))]",
+            "apiVersion": "2015-01-01",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(deployment().properties.templateLink.uri, 'resources/logic.json')]"
+                },
+                "parameters": {
+                    "logicAppName": {
+                        "value": "[parameters('logicAppName')]"
+                    },
+                    "azureDevopsOrganization": {
+                        "value": "[parameters('azureDevopsOrganization')]"
+                    },
+                    "azureDevopsProject": {
+                        "value": "[parameters('azureDevopsProject')]"
+                    },
+                    "azureDevopsPAT": {
+                        "value": "[parameters('azureDevopsPAT')]"
                     }
                 }
             }
