@@ -15,7 +15,7 @@
             },
             "name": "[parameters('containerRegistryName')]",
             "apiVersion": "2017-10-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "adminUserEnabled": false
             }
