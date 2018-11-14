@@ -5,7 +5,7 @@
         "virtualNetworkName": {
             "type": "string"
         },
-        "virtualAddressSpace": {
+        "virtualNetworkAddressSpace": {
             "type": "string",
             "defaultValue": "10.0.0.0/16"
         },
@@ -44,7 +44,7 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('virtualAddressSpace')]"
+                        "[parameters('virtualNetworkAddressSpace')]"
                     ]
                 },
                 "subnets": [
