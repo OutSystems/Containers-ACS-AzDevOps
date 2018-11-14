@@ -9,11 +9,11 @@
             "type": "string",
             "defaultValue": "10.0.0.0/16"
         },
-        "subnetNameForVMs": {
+        "subnetNameForVirtualMachines": {
             "type": "string",
             "defaultValue": "outsystems-subnet"
         },
-        "subnetAddressSpaceForVMs": {
+        "subnetAddressSpaceForVirtualMachines": {
             "type": "string",
             "defaultValue": "10.0.0.0/24"
         },
@@ -49,9 +49,9 @@
                 },
                 "subnets": [
                     {
-                        "name": "[parameters('subnetNameForVMs')]",
+                        "name": "[parameters('subnetNameForVirtualMachines')]",
                         "properties": {
-                            "addressPrefix": "[parameters('subnetAddressSpaceForVMs')]"
+                            "addressPrefix": "[parameters('subnetAddressSpaceForVirtualMachines')]"
                         }
                     },
                     {
