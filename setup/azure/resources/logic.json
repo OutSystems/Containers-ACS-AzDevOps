@@ -28,12 +28,15 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "$azureDevopsOrganization": {
+                            "defaultValue": "[parameters('azureDevopsOrganization')]",
                             "type": "String"
                         },
                         "$azureDevopsProject": {
+                            "defaultValue": "[parameters('azureDevopsProject')]",
                             "type": "String"
                         },
                         "$azureDevopsPAT": {
+                            "defaultValue": "[parameters('azureDevopsPAT')]",
                             "type": "String"
                         }
                     },
@@ -78,7 +81,7 @@
                                     "Content-Type": "application/json"
                                 },
                                 "method": "POST",
-                                "uri": "https://dev.azure.com/@parameters('$azureDevopsOrganization')/@parameters('$azureDevopsProject')/_apis/build/builds?api-version=4.1"
+                                "uri": "https://dev.azure.com/@{parameters('$azureDevopsOrganization')}/@{parameters('$azureDevopsProject')}/_apis/build/builds?api-version=4.1"
                             }
                         },
                         "setAddress": {
@@ -216,17 +219,7 @@
                     },
                     "outputs": {}
                 },
-                "parameters": {
-                    "$azureDevopsOrganization": {
-                        "value": "[parameters('azureDevopsOrganization')]"
-                    },
-                    "$azureDevopsProject": {
-                        "value": "[parameters('azureDevopsProject')]"
-                    },
-                    "$azureDevopsPAT": {
-                        "value": "[parameters('azureDevopsPAT')]"
-                    }
-                }
+                "parameters": {}
             }
         }
     ],
@@ -234,6 +227,10 @@
         "logicAppName": {
             "type": "string",
             "value": "[parameters('logicAppName')]"
-        }
+        },
+        "triggerURI": {
+            "type": "string",
+            "value": "[listCallbackURL(concat(resourceId('Microsoft.Logic/workflows/', parameters('logicAppName')), '/triggers/manual'), '2016-06-01').value]"
+          }
     }
 }
