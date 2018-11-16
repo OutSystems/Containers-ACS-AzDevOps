@@ -41,6 +41,7 @@
         },
         "virtualNetworkSubnetName": {
             "type": "string",
+            "defaultValue": "outsystems-subnet",
             "metadata": {
                 "description": "The subnet where you want to deploy the deployment controller virtual machine."
             }
@@ -53,6 +54,7 @@
         },
         "applicationGatewayVirtualNetworkSubnetName": {
             "type": "string",
+            "defaultValue": "appgw-subnet",
             "metadata": {
                 "description": "The subnet for the Application Gateway. This subnet must be dedicated to Application Gateways and cannot contain any other resources."
             }
