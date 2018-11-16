@@ -291,7 +291,7 @@
                 },
                 "parameters": {
                     "resourceName": {
-                        "value": "[reference(concat('Microsoft.Resources/deployments/OutSystems.DC.', parameters('virtualMachineName'), '.VirtualMachine')).outputs.virtualMachineName.value]"
+                        "value": "[reference(concat('Microsoft.Resources/deployments/OutSystems.DC.', parameters('virtualMachineName'))).outputs.virtualMachineName.value]"
                     },
                     "location": {
                         "value": "[resourceGroup().location]"
