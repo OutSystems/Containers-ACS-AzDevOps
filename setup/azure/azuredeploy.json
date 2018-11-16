@@ -121,9 +121,15 @@
             }
         },
         "azureDevopsPAT": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "The Personal Authentication Token to access the Azure Devops REST API."
+            }
+        },
+        "azureDevopsAgentPool": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure DevOps agent pool name where the agent will register. This needs to exist already in Azure DevOps."
             }
         }
     },
@@ -268,6 +274,31 @@
                     },
                     "azureDevopsPAT": {
                         "value": "[parameters('azureDevopsPAT')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('OutSystems.DC.', parameters('virtualMachineName'), 'InstallVSTSAgent')]",
+            "apiVersion": "2015-01-01",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(deployment().properties.templateLink.uri, 'resources/customScriptExtension.json')]"
+                },
+                "parameters": {
+                    "resourceName": {
+                        "value": "[reference(concat('Microsoft.Resources/deployments/OutSystems.DC.', parameters('virtualMachineName'), '.VirtualMachine')).outputs.virtualMachineName.value]"
+                    },
+                    "location": {
+                        "value": "[resourceGroup().location]"
+                    },
+                    "fileUris": {
+                        "value": "[uri(deployment().properties.templateLink.uri, 'scripts/InstallVSTSBuildAgent.ps1')]"
+                    },
+                    "arguments": {
+                        "value": "[concat('-VSTSAccount ', parameters('azureDevopsOrganization'),' -PersonalAccessToken ', parameters('azureDevopsPAT'),' -PoolName ', parameters('azureDevopsAgentPool'))]"
                     }
                 }
             }
